@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %} Login {% endblock %}
+{% block content %}
+<form action="/login" method="POST">
+    {{ form.hidden_tag()}}
+
+    {{form.username_or_email.label}}
+    {{form.username_or_email}}
+    {% if form.username_or_email.errors %}
+    {% for error in form.username.errors %}
+    <span style="color: red;">{{ error }}</span>
+    {% endfor %}
+
+    {% endif %}
+
+    </br>
+    {{form.password.label}}
+    {{form.password}}
+    {% if form.password.errors %}
+    {% for error in form.password.errors %}
+    <span style="color: red;">{{ error }}</span>
+    {% endfor %}
+
+    {% endif %}
+    </br>
+
+
+    {{ form.submit }}
+
+</form>
+{% endblock %}
