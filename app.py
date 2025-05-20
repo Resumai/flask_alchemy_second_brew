@@ -18,6 +18,10 @@ with app.app_context():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+
+        if form.email.data == form.username.data:
+            flash('', 'error')
+            return redirect(url_for('register'))
         password_hash = generate_password_hash(form.password.data)
         user = User(
             username=form.username.data, 
@@ -41,7 +45,7 @@ def register_step2():
         return redirect(url_for('register'))
     
     if form.validate_on_submit():
-        
+
         user_details = UserDetails(
             user_id=current_user_id, 
             name=form.name.data, 
