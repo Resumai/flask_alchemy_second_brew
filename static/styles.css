@@ -1,4 +1,3 @@
-/* Make the whole page stretch full height and space out elements */
 html, body {
     height: 100%;
     margin: 0;
@@ -12,16 +11,16 @@ html, body {
 
 header {
     text-align: center;
-    padding: 20px 0;
-    font-size: 60px;
+    padding: 5px 0;
+    font-size: 65px;
 }
 
 main {
     flex: 1;
     display: flex;
     justify-content: center;
-    /* align-content: baseline; */
 }
+
 
 footer {
     text-align: right;
@@ -30,14 +29,13 @@ footer {
 }
 
 
-
 form {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 300px;
     gap: 10px;
-    margin-bottom: 200px;
+    /* margin-bottom: 200px; */
 }
 
 
@@ -71,25 +69,60 @@ form input[type="password"]::placeholder {
 
 form input[type="submit"] {
     width: 100px;
-    height: 40px;
+    height: 39px;
     font-weight: bold;
+    font-size: 18px;
     background-color: #007bff;
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-self: center;
     transition: background-color 0.3s ease;
-    margin-top: 10px;
+    margin-top: 25px;
 }
 
 form input[type="submit"]:hover {
     background-color: #0056b3;
 }
 
-/* Optional: error text style */
-span[style*="color: red"] {
-    color: #ff4d4d;
-    font-size: 13px;
+
+.link {
+    display: block;          
+    text-align: right;      
+    font-size: 16px;
+    margin-top: 50px;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+    color: #9630be;
+    text-decoration: underline;
+}
+
+.link:hover {
+    color: #631fa3;
+    text-decoration: underline;
+}
+
+
+.flash-message {
+    padding: 10px 20px;
+    /* border-radius: 5px; */
+    font-weight: bold;
+    text-align: center;
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+    margin: 10px auto;
+    width: fit-content;
+}
+
+
+
+
+.flash-message.success {
+    color: #00ff88;
+}
+
+.flash-message.error {
+    color: red;
 }

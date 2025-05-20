@@ -9,6 +9,16 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 
+
+<script>
+    setTimeout(function () {
+      document.querySelectorAll('.flash-message').forEach(function(el) {
+        el.style.opacity = '0';
+      });
+    }, 600000); // 6000ms = 6 second
+</script>
+  
+
 <body>
     <header>
         <nav>
@@ -20,6 +30,16 @@
     <main>
         {% block content %}{% endblock %}
     </main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="flash-message {{ category }}">{{ message }}</li>
+                    <!-- <li class="flash {{ category }}">{{ message }}</li> -->
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
     <footer>
         <p>&copy; 2025 My Website</p>
     </footer>

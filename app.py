@@ -1,12 +1,8 @@
-from flask import Flask, render_template
-from flask_sqlalchemy import SQLAlchemy
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, EmailField, ValidationError
-from wtforms.validators import DataRequired, Length
+from flask import Flask, render_template, redirect, url_for, session, flash
 from sqlalchemy import select, or_
-from string import punctuation as valid_symbols
 from db import db
-from models.user import User
+from models import User, UserDetails, RegistrationForm, RegistrationStep2Form, LoginForm
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
@@ -18,42 +14,47 @@ with app.app_context():
 
 
 
-class CustomPasswordValidator():
-    def __init__(self):
-        self.message = 'Password must have at least one upper letter, one lower letter, one symbol, one number and no space.'
-
-    def __call__(self, form, field):
-        text : str = field.data
-        is_any_upper = any(c.isupper() for c in text)
-        is_any_lower = any(c.islower() for c in text)
-        is_any_number = any(c.isdigit() for c in text)
-        is_no_space = not any(c.isspace() for c in text)
-        is_any_symbol = any(c in valid_symbols for c in text)
-        if not all([is_any_upper, is_any_lower, is_any_number, is_no_space, is_any_symbol]):
-            raise ValidationError(self.message)
-
-class RegistrationForm(FlaskForm):
-    username = StringField('Username:', validators=[DataRequired()])
-    email = EmailField('Email:', validators=[DataRequired()])
-    password = PasswordField('Password:', validators=[DataRequired(), Length(min=8, max=20), CustomPasswordValidator()])
-    submit = SubmitField('Register')
-
-
-class LoginForm(FlaskForm):
-    username_or_email = StringField('Username or Email:', validators=[DataRequired()])
-    password = PasswordField('Password:', validators=[DataRequired()])
-    submit = SubmitField('Login')
-
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data, password=form.password.data)
+        password_hash = generate_password_hash(form.password.data)
+        user = User(
+            username=form.username.data, 
+            email=form.email.data, 
+            password=password_hash
+        )
         db.session.add(user)
         db.session.commit()
-        return 'User registered successfully'
+        session['current_user_id'] = user.id
+        # return 'User registered successfully'
+        return redirect(url_for('register_step2'))
     return render_template('register.html', form=form)
+
+
+@app.route('/register/step2', methods=['GET', 'POST'])
+def register_step2():
+    form = RegistrationStep2Form()
+    
+    current_user_id = session.get('current_user_id')
+    if not current_user_id:
+        return redirect(url_for('register'))
+    
+    if form.validate_on_submit():
+        
+        user_details = UserDetails(
+            user_id=current_user_id, 
+            name=form.name.data, 
+            surname=form.surname.data, 
+            address=form.address.data
+        )
+        db.session.add(user_details)
+        db.session.commit()
+
+        session.pop('current_user_id', None)
+
+        return redirect(url_for('login'))
+    return render_template('register_step2.html', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -68,12 +69,22 @@ def login():
         user = db.session.execute(selection).scalar_one_or_none()
 
         if not user:
-            return 'No account found with that username or email'
-
-        if user.password == form.password.data:
-            return 'User logged in successfully'
-        return 'Invalid login credentials or password'
+            flash('No account found with that username or email', 'error')
+            return redirect(url_for('login'))
+        
+        if check_password_hash(user.password, form.password.data):
+            # session['current_user_id'] = user.id
+            flash('User logged in successfully', 'success')
+            return redirect(url_for('login'))
+        flash('Invalid login credentials or password', 'error')
+        return redirect(url_for('login'))
     return render_template('login.html', form=form)
+
+
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
 
 
 if __name__ == '__main__':

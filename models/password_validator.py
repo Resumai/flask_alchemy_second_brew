@@ -1,4 +1,3 @@
-
 from string import punctuation as valid_symbols
 from wtforms import ValidationError
 

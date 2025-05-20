@@ -34,8 +34,18 @@
     {% endif %}
     </br>
 
+    {{form.confirm_password.label}}
+    {{form.confirm_password}}
+    {% if form.confirm_password.errors %}
+    {% for error in form.confirm_password.errors %}
+    <span style="color: red;">{{ error }}</span>
+    {% endfor %}
+
+    {% endif %}
+    </br>
 
     {{ form.submit }}
 
+    <a href="/login" class="link">Already have an account?</a>
 </form>
 {% endblock %}
